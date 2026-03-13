@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Bar, BarChart, Cell, Legend, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Button } from "../../components/ui/button";
 import { useAdminData } from "../hooks/use-admin-data";
 
@@ -193,19 +193,28 @@ export default function AdminRewardsPage() {
         {chartData.every((entry) => entry.value === 0) ? (
           <p className="text-gray-500">No members found in the selected date range.</p>
         ) : (
-          <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie data={chartData} dataKey="value" cx="50%" cy="50%" outerRadius={100}>
-                  {chartData.map((entry) => (
-                    <Cell key={entry.name} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip formatter={(value: number) => [`${value} members`, ""]} />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
+          <>
+            <div className="h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={chartData} dataKey="value" nameKey="name" cx="50%" cy="45%" outerRadius={100}>
+                    {chartData.map((entry) => (
+                      <Cell key={entry.name} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(value: number, _name, item) => [`${value} members`, item?.payload?.name ?? "Tier"]} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="mt-4 flex items-center justify-center gap-6">
+              {chartData.map((entry) => (
+                <div key={`legend-${entry.name}`} className="flex items-center gap-2 text-sm text-gray-700">
+                  <span className="inline-block h-3 w-3 rounded-full" style={{ backgroundColor: entry.color }} aria-hidden="true" />
+                  <span>{entry.name}</span>
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
 

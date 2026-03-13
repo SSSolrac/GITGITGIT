@@ -5,7 +5,7 @@ import { Card } from "../../components/ui/card";
 import { Badge } from "../../components/ui/badge";
 import { Progress } from "../../components/ui/progress";
 import type { AppOutletContext } from "../../types/app-context";
-import { fetchTierRules } from "../../lib/loyalty-supabase";
+import { supabase } from "../../../utils/supabase/client";
 
 const tierLevels = [
   { name: "Bronze", min: 0, icon: Shield },
@@ -14,6 +14,12 @@ const tierLevels = [
 ] as const;
 
 type TierName = (typeof tierLevels)[number]["name"];
+type TierRuleRow = {
+  id: number;
+  tier_label: string;
+  min_points: number;
+  is_active: boolean;
+};
 
 const WELCOME_NOTICE_STORAGE_KEY = "centralperk-welcome-notice";
 
@@ -64,10 +70,14 @@ export default function Dashboard() {
   const recentFive = [...user.transactions].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5);
 
   useEffect(() => {
-    fetchTierRules()
-      .then((rules) => {
+    supabase
+      .from("points_rules")
+      .select("id,tier_label,min_points,is_active")
+      .eq("is_active", true)
+      .then(({ data, error }) => {
+        if (error || !data) return;
         const nextMinimums: Record<TierName, number> = { Bronze: 0, Silver: 250, Gold: 750 };
-        for (const rule of rules) {
+        for (const rule of data as TierRuleRow[]) {
           const tierLabel = String(rule.tier_label).toLowerCase();
           if (tierLabel === "bronze") nextMinimums.Bronze = Math.max(0, Number(rule.min_points) || 0);
           if (tierLabel === "silver") nextMinimums.Silver = Math.max(0, Number(rule.min_points) || 0);
