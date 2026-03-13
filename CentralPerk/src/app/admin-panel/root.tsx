@@ -79,7 +79,7 @@ export default function AdminRoot() {
               <span className="text-white font-bold text-sm">A</span>
             </div>
             <div>
-              <h1 className="font-bold text-gray-900">GREENOVATE</h1>
+              <h1 className="font-bold text-gray-900">CentralPerk</h1>
               <p className="text-xs text-gray-500">Admin Panel</p>
             </div>
           </div>
@@ -121,7 +121,7 @@ export default function AdminRoot() {
                 <span className="text-white font-bold text-lg">A</span>
               </div>
               <div>
-                <h1 className="font-bold text-white">GREENOVATE</h1>
+                <h1 className="font-bold text-white">CentralPerk</h1>
                 <p className="text-xs text-slate-300">Admin Panel</p>
               </div>
             </div>
@@ -175,7 +175,7 @@ export default function AdminRoot() {
               <LogOut className="w-4 h-4" />
               Logout
             </button>
-            <p className="text-xs text-center text-slate-300">© 2026 GREENOVATE</p>
+            <p className="text-xs text-center text-slate-300">Copyright 2026 CentralPerk</p>
           </div>
         </div>
       </div>
@@ -228,4 +228,3 @@ export default function AdminRoot() {
     </div>
   );
 }
-

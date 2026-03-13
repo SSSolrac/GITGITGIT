@@ -48,10 +48,13 @@ export default function AdminMembersPage() {
     if (!q) return members;
     return members.filter((m) => {
       const fullName = `${m.first_name} ${m.last_name}`.toLowerCase();
+      const memberNumber = String(m.member_number || "").toLowerCase();
+      const phone = String(m.phone || "").toLowerCase();
+      const email = String(m.email || "").toLowerCase();
       return (
-        m.member_number.toLowerCase().includes(q) ||
-        m.phone.toLowerCase().includes(q) ||
-        m.email.toLowerCase().includes(q) ||
+        memberNumber.includes(q) ||
+        phone.includes(q) ||
+        email.includes(q) ||
         fullName.includes(q)
       );
     });
@@ -78,8 +81,8 @@ export default function AdminMembersPage() {
           <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
             <p><span className="font-semibold">Member ID:</span> {selectedMember.member_number}</p>
             <p><span className="font-semibold">Name:</span> {selectedMember.first_name} {selectedMember.last_name}</p>
-            <p><span className="font-semibold">Mobile:</span> {selectedMember.phone}</p>
-            <p><span className="font-semibold">Email:</span> {selectedMember.email}</p>
+            <p><span className="font-semibold">Mobile:</span> {selectedMember.phone || "-"}</p>
+            <p><span className="font-semibold">Email:</span> {selectedMember.email || "-"}</p>
             <p><span className="font-semibold">Points:</span> {(selectedMember.points_balance || 0).toLocaleString()}</p>
             <p><span className="font-semibold">Tier:</span> {selectedMember.tier || "Bronze"}</p>
           </div>
@@ -107,12 +110,12 @@ export default function AdminMembersPage() {
                   <td className="py-4 px-4 text-sm font-medium text-gray-800">{member.member_number}</td>
                   <td className="py-4 px-4 text-sm text-gray-700">{member.first_name} {member.last_name}</td>
                   <td className="py-4 px-4 text-sm text-gray-600">{member.email}</td>
-                  <td className="py-4 px-4 text-sm text-gray-600">{member.phone}</td>
+                  <td className="py-4 px-4 text-sm text-gray-600">{member.phone || "-"}</td>
                   <td className="py-4 px-4 text-sm font-semibold text-gray-800">
                     {(member.points_balance || 0).toLocaleString()}
                   </td>
                   <td className="py-4 px-4 text-sm text-gray-600">
-                    {new Date(member.enrollment_date).toLocaleDateString()}
+                    {member.enrollment_date ? new Date(member.enrollment_date).toLocaleDateString() : "-"}
                   </td>
                   <td className="py-4 px-4">
                     <div className="flex gap-2">
@@ -143,4 +146,3 @@ export default function AdminMembersPage() {
     </div>
   );
 }
-

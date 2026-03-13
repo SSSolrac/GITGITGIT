@@ -84,7 +84,7 @@ export default function AdminActivityPage() {
       const html = `
         <html>
           <head>
-            <title>CentralPerk Admin Points Activity</title>
+            <title>CentralPerk Admin Activity Report</title>
             <style>
               body { font-family: Arial, sans-serif; padding: 24px; color: #111827; }
               .brand { display:flex; justify-content:space-between; align-items:center; background:#1A2B47; color:#fff; padding:12px 16px; border-radius:8px; }
@@ -94,7 +94,7 @@ export default function AdminActivityPage() {
             </style>
           </head>
           <body>
-            <div class="brand"><strong>CentralPerk Loyalty</strong><span>Admin Activity Report</span></div>
+            <div class="brand"><strong>CentralPerk Rewards</strong><span>Admin Activity Report</span></div>
             <p>Generated: ${new Date().toLocaleString()}</p>
             <table>
               <thead>
@@ -288,9 +288,9 @@ export default function AdminActivityPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredTransactions.map((tx) => (
-                <tr key={tx.transaction_id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                  <td className="py-4 px-4 text-sm text-gray-700">{new Date(tx.transaction_date).toLocaleDateString()}</td>
+              {filteredTransactions.map((tx, index) => (
+                <tr key={tx.transaction_id || `${tx.member_id}-${tx.transaction_date}-${index}`} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                  <td className="py-4 px-4 text-sm text-gray-700">{tx.transaction_date ? new Date(tx.transaction_date).toLocaleDateString() : "-"}</td>
                   <td className="py-4 px-4 text-sm font-medium text-gray-800">{tx.loyalty_members?.member_number || "N/A"}</td>
                   <td className="py-4 px-4 text-sm text-gray-700">
                     {tx.loyalty_members

@@ -19,9 +19,6 @@ export default function AdminDashboard() {
   });
   const [endDate, setEndDate] = useState(() => toInputDate(new Date()));
 
-  if (loading) return <p className="text-base text-gray-700">Loading dashboard...</p>;
-  if (error) return <p className="text-red-600">{error}</p>;
-
   const start = startDate ? new Date(`${startDate}T00:00:00`).getTime() : Number.NEGATIVE_INFINITY;
   const end = endDate ? new Date(`${endDate}T23:59:59`).getTime() : Number.POSITIVE_INFINITY;
 
@@ -47,6 +44,9 @@ export default function AdminDashboard() {
     metrics.tierDistribution.gold +
     metrics.tierDistribution.silver +
     metrics.tierDistribution.bronze;
+
+  if (loading) return <p className="text-base text-gray-700">Loading dashboard...</p>;
+  if (error) return <p className="text-red-600">{error}</p>;
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
@@ -195,9 +195,9 @@ export default function AdminDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredTransactions.slice(0, 20).map((tx) => (
-                    <tr key={tx.transaction_id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                      <td className="py-4 px-4 text-sm text-gray-700">{new Date(tx.transaction_date).toLocaleDateString()}</td>
+                  {filteredTransactions.slice(0, 20).map((tx, index) => (
+                    <tr key={tx.transaction_id || `${tx.member_id}-${tx.transaction_date}-${index}`} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                      <td className="py-4 px-4 text-sm text-gray-700">{tx.transaction_date ? new Date(tx.transaction_date).toLocaleDateString() : "-"}</td>
                       <td className="py-4 px-4 text-sm font-medium text-gray-800">{tx.loyalty_members?.member_number || "N/A"}</td>
                       <td className="py-4 px-4 text-sm text-gray-700">
                         {tx.loyalty_members ? `${tx.loyalty_members.first_name} ${tx.loyalty_members.last_name}` : "Unknown"}

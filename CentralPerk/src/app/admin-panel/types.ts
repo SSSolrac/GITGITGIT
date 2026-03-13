@@ -5,14 +5,14 @@ export interface Member {
   first_name: string;
   last_name: string;
   email: string;
-  phone: string;
+  phone?: string | null;
   enrollment_date: string;
   points_balance?: number;
   tier?: string;
 }
 
 export interface LoyaltyTransaction {
-  transaction_id: string;
+  transaction_id?: string;
   member_id: string;
   points: number;
   transaction_type: string;

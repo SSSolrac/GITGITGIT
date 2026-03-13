@@ -98,7 +98,7 @@ export default function AdminSettingsPage() {
       <div className="rounded-xl border border-[#9ed8ff] bg-white p-6 space-y-4">
         <div>
           <h2 className="text-xl font-semibold text-gray-900">Earning Rate Configuration</h2>
-          <p className="text-gray-600 text-sm mt-1">Default target is 1 point per ₱10 with optional tier multipliers.</p>
+          <p className="text-gray-600 text-sm mt-1">Default target is 1 point per PHP 10 with optional tier multipliers.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

@@ -280,7 +280,7 @@ export function useAdminData() {
       }
 
       return {
-        memberNumber: member.member_number,
+        memberNumber: member.member_number || "N/A",
         fullName: `${member.first_name} ${member.last_name}`.trim(),
         lastActivityDate: lastTx ? lastTx.toISOString() : null,
         activityLevel,

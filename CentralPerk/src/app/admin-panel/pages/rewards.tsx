@@ -20,9 +20,6 @@ export default function AdminRewardsPage() {
   });
   const [endDate, setEndDate] = useState(() => toInputDate(new Date()));
 
-  if (loading) return <p className="text-base text-gray-700">Loading rewards data...</p>;
-  if (error) return <p className="text-red-600">{error}</p>;
-
   const total =
     metrics.tierDistribution.gold +
     metrics.tierDistribution.silver +
@@ -58,6 +55,9 @@ export default function AdminRewardsPage() {
     [metrics.redemptionSeries, redemptionWindow]
   );
   const redeemedInWindow = redemptionSeries.reduce((sum, point) => sum + point.value, 0);
+
+  if (loading) return <p className="text-base text-gray-700">Loading rewards data...</p>;
+  if (error) return <p className="text-red-600">{error}</p>;
 
   const exportLiabilityExcel = () => {
     const rows = [
@@ -133,8 +133,8 @@ export default function AdminRewardsPage() {
         </div>
         <div className="bg-gradient-to-br from-[#ecfeff] to-white rounded-xl p-6 border border-cyan-200">
           <h3 className="text-gray-600 text-sm font-medium mb-1">Monetary Liability</h3>
-          <p className="text-3xl font-bold text-gray-800">P{metrics.monetaryLiability.toLocaleString()}</p>
-          <p className="text-xs text-gray-500 mt-1">Rate: P{metrics.redemptionValuePerPoint} per point</p>
+          <p className="text-3xl font-bold text-gray-800">PHP {metrics.monetaryLiability.toLocaleString()}</p>
+          <p className="text-xs text-gray-500 mt-1">Rate: PHP {metrics.redemptionValuePerPoint} per point</p>
         </div>
         <div className="bg-gradient-to-br from-[#f5f0ff] to-white rounded-xl p-6 border border-[#d7c2ff]">
           <h3 className="text-gray-600 text-sm font-medium mb-1">Redemption Rate</h3>
