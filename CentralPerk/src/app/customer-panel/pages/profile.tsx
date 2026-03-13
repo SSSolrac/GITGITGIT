@@ -9,7 +9,7 @@ import { Label } from "../../components/ui/label";
 import { Badge } from "../../components/ui/badge";
 import { Progress } from "../../components/ui/progress";
 import { toast } from "sonner";
-import { loadTierHistory, updateMemberProfile, uploadMemberProfilePhoto } from "../../lib/loyalty-supabase";
+import { fetchTierRules, loadTierHistory, updateMemberProfile, uploadMemberProfilePhoto } from "../../lib/loyalty-supabase";
 import TierHistory from "../../components/TierHistory";
 
 function splitName(fullName: string) {
@@ -38,6 +38,13 @@ export default function Profile() {
   const [pendingSave, setPendingSave] = useState(false);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
 
+
+  const [tierMinimums, setTierMinimums] = useState({
+    Bronze: 0,
+    Silver: 250,
+    Gold: 750,
+  });
+
   useEffect(() => {
     setFormData({
       fullName: user.fullName,
@@ -62,6 +69,21 @@ export default function Profile() {
       )
       .catch(() => setTierTimeline([]));
   }, [user]);
+
+  useEffect(() => {
+    fetchTierRules()
+      .then((rules) => {
+        const nextMinimums = { Bronze: 0, Silver: 250, Gold: 750 };
+        for (const rule of rules) {
+          const tierLabel = String(rule.tier_label).toLowerCase();
+          if (tierLabel === "bronze") nextMinimums.Bronze = Math.max(0, Number(rule.min_points) || 0);
+          if (tierLabel === "silver") nextMinimums.Silver = Math.max(0, Number(rule.min_points) || 0);
+          if (tierLabel === "gold") nextMinimums.Gold = Math.max(0, Number(rule.min_points) || 0);
+        }
+        setTierMinimums(nextMinimums);
+      })
+      .catch(() => {});
+  }, []);
 
   const handleSave = async () => {
     const emailChanged = formData.email.trim().toLowerCase() !== user.email.trim().toLowerCase();
@@ -185,16 +207,18 @@ export default function Profile() {
   };
 
   const nextTierInfo = {
-    Bronze: { name: "Silver", pointsNeeded: 250 },
-    Silver: { name: "Gold", pointsNeeded: 750 },
-    Gold: { name: "Gold", pointsNeeded: 750 },
+    Bronze: { name: "Silver", pointsNeeded: tierMinimums.Silver },
+    Silver: { name: "Gold", pointsNeeded: tierMinimums.Gold },
+    Gold: { name: "Gold", pointsNeeded: tierMinimums.Gold },
   } as const;
 
   const nextTier = nextTierInfo[user.tier];
   const tierProgress =
     user.tier === "Gold"
       ? 100
-      : Math.min(100, (user.lifetimePoints / nextTier.pointsNeeded) * 100);
+      : nextTier.pointsNeeded > 0
+      ? Math.min(100, (user.lifetimePoints / nextTier.pointsNeeded) * 100)
+      : 0;
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
