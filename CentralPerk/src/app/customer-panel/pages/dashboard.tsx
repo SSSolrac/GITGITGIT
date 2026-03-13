@@ -5,6 +5,7 @@ import { Card } from "../../components/ui/card";
 import { Badge } from "../../components/ui/badge";
 import { Progress } from "../../components/ui/progress";
 import type { AppOutletContext } from "../../types/app-context";
+import { fetchTierRules } from "../../lib/loyalty-supabase";
 
 const tierLevels = [
   { name: "Bronze", min: 0, icon: Shield },
@@ -12,21 +13,42 @@ const tierLevels = [
   { name: "Gold", min: 750, icon: Trophy },
 ] as const;
 
+type TierName = (typeof tierLevels)[number]["name"];
+
 const WELCOME_NOTICE_STORAGE_KEY = "centralperk-welcome-notice";
 
 export default function Dashboard() {
   const { user } = useOutletContext<AppOutletContext>();
   const now = new Date();
-  const [selectedTier, setSelectedTier] = useState<(typeof tierLevels)[number]["name"]>(
-    (user.points >= 750 ? "Gold" : user.points >= 250 ? "Silver" : "Bronze") as (typeof tierLevels)[number]["name"]
+  const [tierMinimums, setTierMinimums] = useState<Record<TierName, number>>({
+    Bronze: 0,
+    Silver: 250,
+    Gold: 750,
+  });
+
+  const resolvedTierLevels = useMemo(
+    () =>
+      tierLevels.map((tier) => ({
+        ...tier,
+        min: tierMinimums[tier.name],
+      })),
+    [tierMinimums]
   );
 
+  const derivedTierName = useMemo<TierName>(() => {
+    const level = [...resolvedTierLevels]
+      .sort((a, b) => b.min - a.min)
+      .find((tier) => user.points >= tier.min);
+    return (level?.name ?? "Bronze") as TierName;
+  }, [resolvedTierLevels, user.points]);
+
+  const [selectedTier, setSelectedTier] = useState<TierName>(derivedTierName);
+
   const projectedBalance = user.points + user.pendingPoints;
-  const derivedTierName = (user.points >= 750 ? "Gold" : user.points >= 250 ? "Silver" : "Bronze") as (typeof tierLevels)[number]["name"];
-  const currentTierIndexRaw = tierLevels.findIndex((tier) => tier.name === derivedTierName);
+  const currentTierIndexRaw = resolvedTierLevels.findIndex((tier) => tier.name === derivedTierName);
   const currentTierIndex = Math.max(0, currentTierIndexRaw);
-  const currentTierData = tierLevels[currentTierIndex];
-  const nextTierData = tierLevels[currentTierIndex + 1] ?? null;
+  const currentTierData = resolvedTierLevels[currentTierIndex];
+  const nextTierData = resolvedTierLevels[currentTierIndex + 1] ?? null;
   const progressBase = currentTierData.min;
   const progressTarget = nextTierData ? nextTierData.min : Math.max(currentTierData.min, user.points);
   const tierProgress =
@@ -34,12 +56,31 @@ export default function Dashboard() {
       ? Math.min(100, ((user.points - progressBase) / (progressTarget - progressBase)) * 100)
       : 100;
   const selectedTierInfo = useMemo(
-    () => tierLevels.find((tier) => tier.name === selectedTier) ?? tierLevels[0],
-    [selectedTier]
+    () => resolvedTierLevels.find((tier) => tier.name === selectedTier) ?? resolvedTierLevels[0],
+    [resolvedTierLevels, selectedTier]
   );
   const [showWelcomeNotice, setShowWelcomeNotice] = useState(false);
   const lifetimeRedeemed = user.transactions.filter((tx) => tx.type === "redeemed").reduce((sum, tx) => sum + Math.abs(tx.points), 0);
   const recentFive = [...user.transactions].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5);
+
+  useEffect(() => {
+    fetchTierRules()
+      .then((rules) => {
+        const nextMinimums: Record<TierName, number> = { Bronze: 0, Silver: 250, Gold: 750 };
+        for (const rule of rules) {
+          const tierLabel = String(rule.tier_label).toLowerCase();
+          if (tierLabel === "bronze") nextMinimums.Bronze = Math.max(0, Number(rule.min_points) || 0);
+          if (tierLabel === "silver") nextMinimums.Silver = Math.max(0, Number(rule.min_points) || 0);
+          if (tierLabel === "gold") nextMinimums.Gold = Math.max(0, Number(rule.min_points) || 0);
+        }
+        setTierMinimums(nextMinimums);
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    setSelectedTier(derivedTierName);
+  }, [derivedTierName]);
 
   useEffect(() => {
     try {
@@ -232,7 +273,7 @@ export default function Dashboard() {
           </div>
 
           <div className="mb-4 grid grid-cols-3 gap-2">
-            {tierLevels.map((tier) => {
+            {resolvedTierLevels.map((tier) => {
               const TierIcon = tier.icon;
               const isCurrent = tier.name === derivedTierName;
               const isReached = user.points >= tier.min;

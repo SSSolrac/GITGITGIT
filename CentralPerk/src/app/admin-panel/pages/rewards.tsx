@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Bar, BarChart, Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, Cell, Legend, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Button } from "../../components/ui/button";
 import { useAdminData } from "../hooks/use-admin-data";
 
@@ -202,6 +202,7 @@ export default function AdminRewardsPage() {
                   ))}
                 </Pie>
                 <Tooltip formatter={(value: number) => [`${value} members`, ""]} />
+                <Legend />
               </PieChart>
             </ResponsiveContainer>
           </div>
